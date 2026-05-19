@@ -1,0 +1,54 @@
+name: CI — Build & Deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'app/**'
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: yguira-hub/shopkube
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install fastapi pytest httpx prometheus-fastapi-instrumentator
+      - run: pytest app/tests/ -v
+
+  build-push:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push
+        run: |
+          docker build -t ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+                       -t ghcr.io/${{ env.IMAGE_NAME }}:latest \
+                       ./app
+          docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          docker push ghcr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Update Helm values with new image tag
+        run: |
+          sed -i "s/tag:.*/tag: ${{ github.sha }}/" charts/shopkube/values.yaml
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "ci: deploy image ${{ github.sha }}"
+          git push
