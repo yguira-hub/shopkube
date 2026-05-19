@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/yguira-hub/shopkube
-  tag: 84588a10ceca1a9575a4a5950bdc0ce48bf87d6c
+  tag: 4afa8d69803c367885ac321a7330cb82bf7c1256
   pullPolicy: Always
 
 replicaCount: 2
