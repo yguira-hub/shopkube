@@ -21,7 +21,6 @@ canary:
     pullPolicy: Always
   env:
     APP_VERSION: "v2-canary"
-
 env:
   APP_VERSION: "v1"
   DATABASE_URL: "postgresql://shopkube:shopkube123@192.168.64.10:5432/shopkube"
