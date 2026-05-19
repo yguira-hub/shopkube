@@ -12,8 +12,8 @@ ingress:
   host: shopkube.local
 
 canary:
-  enabled: false
-  weight: 0
+  enabled: true
+  weight: 10
   replicaCount: 1
   image:
     repository: ghcr.io/yguira-hub/shopkube
