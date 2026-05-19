@@ -66,3 +66,4 @@ async def delete_product(product_id: str):
     return {"deleted": product_id}
 # ShopKube v1.0
 # retry
+# multi-arch build

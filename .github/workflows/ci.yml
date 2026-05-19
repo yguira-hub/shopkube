@@ -30,6 +30,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up QEMU (pour cross-compile ARM64)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Log in to ghcr.io
         uses: docker/login-action@v3
         with:
@@ -37,19 +43,15 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push (SHA tag only)
-        run: |
-          docker build -t ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} ./app
-          docker push ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
-      - name: Tag and push latest (with retry)
-        run: |
-          docker tag ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }} ghcr.io/${{ env.IMAGE_NAME }}:latest
-          for i in 1 2 3; do
-            docker push ghcr.io/${{ env.IMAGE_NAME }}:latest && break
-            echo "Retry $i failed, waiting 10s..."
-            sleep 10
-          done
+      - name: Build and push multi-arch (amd64 + arm64)
+        uses: docker/build-push-action@v5
+        with:
+          context: ./app
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: |
+            ghcr.io/${{ env.IMAGE_NAME }}:${{ github.sha }}
+            ghcr.io/${{ env.IMAGE_NAME }}:latest
 
       - name: Update Helm values with new image tag
         run: |
