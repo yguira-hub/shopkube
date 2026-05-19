@@ -67,3 +67,4 @@ async def delete_product(product_id: str):
 # ShopKube v1.0
 # retry
 # multi-arch build
+# trigger ci
