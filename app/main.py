@@ -12,6 +12,9 @@ class Product(BaseModel):
     category: str
     stock: int
 
+class ProductV2(Product):
+    discount_price: float   # spécifique à la v2
+
 @app.on_event("startup")
 async def startup():
     app.state.db = await asyncpg.connect(os.getenv("DATABASE_URL"))
@@ -64,7 +67,15 @@ async def delete_product(product_id: str):
     if result == "DELETE 0":
         raise HTTPException(status_code=404, detail="Product not found")
     return {"deleted": product_id}
-# ShopKube v1.0
-# retry
-# multi-arch build
-# trigger ci
+
+# ----------  VERSION V2 (CANARY) ----------
+@app.get("/v2/products")
+async def list_products_v2():
+    rows = await app.state.db.fetch("SELECT * FROM products")
+    products = []
+    for row in rows:
+        p = dict(row)
+        discount = p['price'] * 0.10
+        product_v2 = ProductV2(**p, discount_price=p['price'] - discount)
+        products.append(product_v2.model_dump())
+    return products

@@ -1,6 +1,6 @@
 image:
   repository: ghcr.io/yguira-hub/shopkube
-  tag: a99285f9ca307c293135f40696649f435d08a746
+  tag: latest
   pullPolicy: Always
 
 replicaCount: 2
@@ -14,6 +14,13 @@ ingress:
 canary:
   enabled: false
   weight: 0
+  replicaCount: 1
+  image:
+    repository: ghcr.io/yguira-hub/shopkube
+    tag: latest-canary
+    pullPolicy: Always
+  env:
+    APP_VERSION: "v2-canary"
 
 env:
   APP_VERSION: "v1"
