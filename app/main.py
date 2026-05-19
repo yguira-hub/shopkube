@@ -64,3 +64,4 @@ async def delete_product(product_id: str):
     if result == "DELETE 0":
         raise HTTPException(status_code=404, detail="Product not found")
     return {"deleted": product_id}
+# ShopKube v1.0
