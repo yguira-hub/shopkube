@@ -13,7 +13,7 @@ ingress:
 
 canary:
   enabled: true
-  weight: 10
+  weight: 25
   replicaCount: 1
   image:
     repository: ghcr.io/yguira-hub/shopkube
